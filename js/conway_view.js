@@ -3,17 +3,14 @@ const Board = require('./board');
 const View = function ($el) {
   this.$el = $el;
 
-  this.board = new Board(4);
+  this.board = new Board(40);
   this.setupGrid();
 
-  // this.intervalId = window.setInterval(
-  //   this.evolve.bind(this),
-  //   View.STEP_MILLIS
-  // );
   $(".cell").click(this.handleClick.bind(this));
+  $(".start-button").click(this.start.bind(this));
 };
 
-View.STEP_MILLIS = 100;
+View.STEP_MILLIS = 500;
 
 View.prototype.handleClick = function (event) {
   if (event.currentTarget.className.includes("active")) {
@@ -21,12 +18,10 @@ View.prototype.handleClick = function (event) {
   } else {
     $(event.currentTarget).addClass('active');
   }
-  console.log(this.board.neighbors());
 };
 
 View.prototype.setupGrid = function () {
   let html = "";
-
   for (let i = 0; i < this.board.dim; i++) {
     html += "<ul>";
     for (let j = 0; j < this.board.dim; j++) {
@@ -34,18 +29,28 @@ View.prototype.setupGrid = function () {
     }
     html += "</ul>";
   }
-
+  let button = $('<button class="start-button">Start</button>', {
+     text: 'Hello',
+  });
   this.$el.html(html);
+  this.$el.append(button);
   this.$li = this.$el.find("li");
+
+};
+
+View.prototype.start = function () {
+  this.intervalId = window.setInterval(
+    this.step.bind(this),
+    View.STEP_MILLIS
+  );
 };
 
 View.prototype.step = function () {
-  if (this.board.snake.segments.length > 0) {
+  if (!this.board.over()) {
     this.board.neighbors();
-    this.render();
   } else {
-    alert("You lose!");
-    window.clearInterval(this.intervalId);
+    alert ('model over');
+    clearInterval(this.intervalId);
   }
 };
 
