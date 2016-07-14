@@ -10,6 +10,15 @@
 
   <body>
     <h1>Conway's Game of Life</h1>
+    <div class="adjusters">
+      <button id="start-button">Start</button>
+      <button id="stop-button">Stop</button>
+      <button id="clear-button">Clear Grid</button>
+      <label for="speed-bar">Speed Bar: </label><input type="range" class="slider" id="speed-bar" min="50" max="1000" value="100"/>
+        <div class="speed-status">
+          Update Interval (ms): <span class="speed" value="100"></span>
+      </div>
+    </div>
 
     <figure class="conway"></figure>
 

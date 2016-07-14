@@ -5,12 +5,24 @@ const View = function ($el) {
 
   this.board = new Board(40);
   this.setupGrid();
+  this.$speedBar = $('#speed-bar');
+  this.$startButton = $("#start-button");
+  this.$stopButton = $("#stop-button");
+  this.$clearButton = $("#clear-button");
 
   $(".cell").click(this.handleClick.bind(this));
-  $(".start-button").click(this.start.bind(this));
+  this.$startButton.click(this.start.bind(this));
+  this.$stopButton.click(this.stop.bind(this));
+  this.$speedBar.on('input', this.adjustSpeed.bind(this));
+  this.$clearButton.click(this.clear.bind(this));
 };
 
-View.STEP_MILLIS = 500;
+View.prototype.adjustSpeed = function(e) {
+  View.STEP_MILLIS = this.$speedBar[0].value;
+  
+};
+
+View.STEP_MILLIS = 100;
 
 View.prototype.handleClick = function (event) {
   if (event.currentTarget.className.includes("active")) {
@@ -29,13 +41,8 @@ View.prototype.setupGrid = function () {
     }
     html += "</ul>";
   }
-  let button = $('<button class="start-button">Start</button>', {
-     text: 'Hello',
-  });
   this.$el.html(html);
-  this.$el.append(button);
   this.$li = this.$el.find("li");
-
 };
 
 View.prototype.start = function () {
@@ -44,6 +51,18 @@ View.prototype.start = function () {
     View.STEP_MILLIS
   );
 };
+
+View.prototype.stop = function () {
+  clearInterval(this.intervalId);
+};
+
+View.prototype.clear = function () {
+  let cellsToClear = $('.active').toArray();
+  cellsToClear.forEach((cell) => {
+    $(cell).removeClass('active');
+  });
+};
+
 
 View.prototype.step = function () {
   if (!this.board.over()) {
