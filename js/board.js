@@ -1,6 +1,7 @@
 const Board = function (dim) {
   this.dim = dim;
   this.grid = Board.blankGrid(this.dim);
+  this.begun = false;
 };
 
 Board.blankGrid = function (dim) {
@@ -8,7 +9,7 @@ Board.blankGrid = function (dim) {
   for (let i = 0; i < dim; i++) {
     const row = [];
     for (let j = 0; j < dim; j++) {
-      row.push(".");
+      row.push(10);
     }
     grid.push(row);
   }
@@ -29,7 +30,7 @@ Board.prototype.findNeighborCount = function (coord) {
   let count = 0;
   neighbors.forEach((cell) => {
     if (this.inBounds(cell)) {
-      if ($(`#${cell[0]}and${cell[1]}`)[0].className.includes('active')) {
+      if (this.grid[cell[0]][cell[1]] === 0) {
         count++;
       }
     }
@@ -47,41 +48,83 @@ Board.prototype.inBounds = function(coord) {
   return condition;
 };
 
-Board.prototype.over = function() {
-  let cells = $('.cell').toArray();
+Board.prototype.over = function () {
+  if (!this.begun) {
+    return false;
+  }
   let condition = true;
-  cells.forEach((cell) => {
-    if (cell.className.includes('active')) {
-      condition = false;
-    }
+  this.grid.forEach((row) => {
+    row.forEach((term) => {
+      if (term < 7 ) {
+        condition = false;
+      }
+    });
   });
   return condition;
 };
 
 Board.prototype.neighbors = function () {
-  let newGen = [];
-  let toKill = [];
+  this.begun = true;
+  let nextGen = [];
+  let toAge = [];
   let cells = $('.cell').toArray();
   cells.forEach((cell) => {
     let pos = cell.id.split("and").map((x) => { return parseInt(x);});
     let nCount = this.findNeighborCount(pos);
-    let lineItem = $(`#${pos[0]}and${pos[1]}`)[0];
     if (nCount === 3) {
-      if (!lineItem.className.includes('active')) {
-        newGen.push(lineItem);
+      nextGen.push(pos);
+    } else if (nCount === 2) {
+      if (this.grid[pos[0]][pos[1]] !== 0) {
+        toAge.push(pos);
       }
-    } else if (nCount < 2 || nCount > 3) {
-      if (lineItem.className.includes('active')) {
-        toKill.push(lineItem);
+    } else {
+      if (this.grid[pos[0]][pos[1]] < 8) {
+        toAge.push(pos);
       }
     }
   });
-  newGen.forEach((cell) => {
-    $(cell).addClass('active');
+  nextGen.forEach((coord) => {
+    this.grid[coord[0]][coord[1]] = 0;
   });
-  toKill.forEach((cell) => {
-    $(cell).removeClass('active');
+  toAge.forEach((coord) => {
+    this.grid[coord[0]][coord[1]]++;
+  });
+
+};
+
+Board.prototype.colorGenerations = function () {
+  let cells = $('.cell').toArray();
+  cells.forEach((cell) => {
+    let pos = cell.id.split("and").map((x) => { return parseInt(x);});
+    switch (this.grid[pos[0]][pos[1]]) {
+      case 0:
+        $(cell).css("background-color", "red");
+        break;
+      case 1:
+        $(cell).css("background-color", "orange");
+        break;
+      case 2:
+        $(cell).css("background-color", "yellow");
+        break;
+      case 3:
+        $(cell).css("background-color", "green");
+        break;
+      case 4:
+        $(cell).css("background-color", "blue");
+        break;
+      case 5:
+        $(cell).css("background-color", "purple");
+        break;
+      case 6:
+        $(cell).css("background-color", "pink");
+        break;
+      default:
+        $(cell).css("background-color", "white");
+        break;
+    }
   });
 };
+
+
 
 module.exports = Board;
